@@ -1,12 +1,13 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import { listProject ,addProject ,filterList } from "./redux/project/projectReducer";
-import { userSignInReducer,userListReducer,userSignUpReducer } from "./redux/user/userReducer"
+import { userSignInReducer,userListReducer,userSignUpReducer, userSignOutReducer} from "./redux/user/userReducer"
 const reducer = combineReducers({
   listProject: listProject,
   addProject : addProject,
   filterList : filterList,
-  userSignUp: userSignUpReducer
+  userSignUp: userSignUpReducer,
+  userSignIn : userSignInReducer,
 });
 
 const userInfoFromStorage = localStorage.getItem("userInfo")
@@ -14,8 +15,7 @@ const userInfoFromStorage = localStorage.getItem("userInfo")
   : null;
 
 const initialState = {
-  // loading : false
-  // userSignIn: { userInfo: userInfoFromStorage }
+  userSignIn: { userInfo: userInfoFromStorage },
 };
 
 const middleware = [thunk];

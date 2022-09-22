@@ -7,6 +7,7 @@ import {
   USER_LIST_SUCCESS,
   USER_SIGN_IN_FAIL,
   USER_SIGN_IN_REQUEST,
+  USER_SIGN_OUT_REQUEST,
   USER_SIGN_IN_SUCCESS,
 } from "./userConstant";
 
@@ -18,7 +19,7 @@ export const userSignUpReducer = (state = {}, action) => {
       return { loading: false, userInfo: action.payload };
     case USER_SIGN_UP_FAIL:
       return { loading: false, error: action.payload };
-    default:
+      default:
       return state;
   }
 };
@@ -44,8 +45,8 @@ export const userSignInReducer = (state = {}, action) => {
       return { loading: false, userInfo: action.payload };
     case USER_SIGN_IN_FAIL:
       return { loading: false, error: action.payload };
-    // case USER_LOGOUT_REQUEST:
-    //   return (state = {});
+    case USER_SIGN_OUT_REQUEST:
+      return { loading : false , userInfo : []};
     default:
       return state;
   }

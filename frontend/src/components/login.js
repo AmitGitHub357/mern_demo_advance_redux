@@ -1,53 +1,36 @@
 import { React, useEffect, useState } from "react";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { userLogin } from "../redux/user/userAction"; 
+import { userLogin } from "../redux/user/userAction";
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-  });
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [data, setData] = useState({});
-  const userSignIn = useSelector((state) => state);
-  const { userInfo } = { userSignIn };
-  console.log(userInfo)
-  
+  const userSignIn = useSelector((state) => state.userSignIn);
+  const { userInfo } =  userSignIn ;
   useEffect(() => {
-    if (typeof userInfo === 'undefined') navigate("/");
+    if (userInfo && userInfo) navigate("/");
   }, []);
-
   const submitHandler = (e) => {
     e.preventDefault();
-    dispatch(userLogin(user));
-
-    // axios
-    //   .post("http://localhost:5000/api/user/signIn", {
-    //     email: email,
-    //     password: password,
-    //   })
-    //   .then((res) => {
-    //     alert(res.status);
-    //     if (res.status == 200 && res.success == true) {
-    //       navigate("/");
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     navigate("/login");
-    //     alert(err.message);
-    //   });
+    try {
+      dispatch(userLogin(email, password));
+      console.log(userSignIn)
+      if (userSignIn.userInfo.status == "401") {
+        alert("something wrong login again");
+        navigate("/login");
+      } else if (userSignIn.userInfo && userSignIn.userInfo.status === 200) {
+        alert(userSignIn.userInfo.message);
+        navigate("/");
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setUser({
-  //     ...user,
-  //     [name]: value,
-  //   });
-  // };
+
   return (
     <div className="container mt-5">
       <div className="row">
@@ -59,7 +42,7 @@ const Login = () => {
               <input
                 type="email"
                 className="form-control mt-3"
-                onChange={(e) => setUser({ email : e.target.value })}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter email"
               />
             </div>
@@ -67,7 +50,7 @@ const Login = () => {
               <p>Password</p>
               <input
                 type="password"
-                onChange={(e) => setUser({ password : e.target.value })}
+                onChange={(e) => setPassword(e.target.value)}
                 className="form-control mt-3"
                 placeholder="Password"
               />
@@ -78,9 +61,7 @@ const Login = () => {
               onClick={(e) => submitHandler(e)}
             >
               Submit
-            </button>
-            <p className="mr-3">Remember Me </p>
-            <input className="ml-3" type="checkbox" />
+            </button>         
           </form>
         </div>
         <div className="col-md-6 ">

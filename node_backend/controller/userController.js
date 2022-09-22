@@ -5,7 +5,15 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
 const asyncHandler = require("express-async-handler");
+const nodemailer = require('nodemailer')
 
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'amit.metromindz@gmail.com',
+    pass: 'dnlxitkfrsceofri'
+  }
+});
 const getUserById = asyncHandler(async (req, resp) => {
   try {
     const id = req.params.id;
@@ -71,7 +79,7 @@ const signUpUser = asyncHandler(async (req, resp) => {
         { _id: saveNewUser._id },
         { $set: { emailVerificationToken: { token } } }
       );
-      
+
       resp.send({
         userInfo: saveNewUser,
         status: 201,
@@ -112,7 +120,6 @@ const deleteUser = asyncHandler(async (req, resp) => {
     });
   }
 });
-
 
 const signInUser = asyncHandler(async (req, res) => {
   try {
@@ -165,10 +172,10 @@ const signInUser = asyncHandler(async (req, res) => {
   }
 });
 
-const updateUser = asyncHandler(async(req, resp) => {
+const updateUser = asyncHandler(async (req, resp) => {
   try {
-    const body = req.body
-    const id = req.params.id
+    const body = req.body;
+    const id = req.params.id;
     const updateUserData = await User.findByIdAndUpdate(
       id,
       { $set: body },
@@ -188,8 +195,79 @@ const updateUser = asyncHandler(async(req, resp) => {
       error: err.message,
       status: 400,
     });
-  } 
-})
+  }
+});
+
+// const verifyUserEmail = asyncHandler(async (req, resp) => {
+//   resp.send({
+//     status: req.params,
+//   });
+// });
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  try {
+    let { email } = req.body;
+    let currentUser = await User.findOne({ email });
+    // res.send({
+    //   currentUser
+    // })
+    if (!currentUser) {
+      res.send({
+        notice:
+          "Sorry You are not in our database. Please contact Administrator.",
+        success: false,
+        status: 404,
+      });
+    } else {
+      let token = jwt.sign({ payload: currentUser._id }, "superKey", {
+        expiresIn: "1h",
+      });
+      let user = await User.findByIdAndUpdate(
+        { _id: currentUser._id },
+        { $set: { resetPasswordToken: { token } } }
+      );
+      
+      let tokenUpdateForUser = await User.findByIdAndUpdate(
+        { _id: currentUser._id },
+        { $set: { emailVerificationToken: { token } } }
+      );
+      // MAIL CODE
+      // let sendLink = {
+      //   from: "",
+      //   to: ``,
+      //   subject: "",
+      //   html: ``,
+      // };
+      var mailOptions = {
+        from: 'amit.metromindz@gmail.com',
+        to: currentUser.email,
+        subject: 'reset password',
+        html: `http://localhost:5000/user/resetPassword/`,
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      }); 
+
+      //     let email = await transporter.sendMail(sendLink);
+          res.json({
+            message: `A mail has been sent to ${currentUser.email}. Please follow the instructions.`,
+            success: true,
+            status: 200,
+          });
+    }
+  } catch (error) {
+    res.send({
+      error: error.message,
+      status: 400,
+      success: false,
+    });
+  }
+});
 
 module.exports = {
   getUser,
@@ -198,4 +276,7 @@ module.exports = {
   getUserById,
   deleteUser,
   updateUser,
+  forgotPassword,
+  // verifyUserEmail,
+  // forgotPassword
 };

@@ -9,6 +9,7 @@ import {
   USER_SIGN_UP_FAIL,
   USER_SIGN_UP_REQUEST,
   USER_SIGN_UP_SUCCESS,
+  USER_SIGN_OUT_REQUEST,
 } from "./userConstant";
 export const fetchUsers = () => async (dispatch, getState) => {
   try {
@@ -44,67 +45,82 @@ export const fetchUsers = () => async (dispatch, getState) => {
   }
 };
 
-export const userRegister = (userData) => async (dispatch) => {
-  dispatch({
-    type: USER_SIGN_UP_REQUEST,
-  });
-  try {
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    const { data } = await axios.post(
-      `http://localhost:5000/api/user/signUp`,
-      userData,
-      config
-    );
-
+export const userRegister =
+  (name, dob, email, password) => async (dispatch) => {
     dispatch({
-      type: USER_SIGN_UP_SUCCESS,
-      payload: data,
+      type: USER_SIGN_UP_REQUEST,
     });
-  } catch (error) {
-    dispatch({
-      type: USER_SIGN_UP_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-  }
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const { data } = await axios.post(
+        `http://localhost:5000/api/user/signUp`,
+        {
+          name: name,
+          email: email,
+          dob: dob,
+          password: password,
+        },
+        config
+      );
+
+      dispatch({
+        type: USER_SIGN_UP_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: USER_SIGN_UP_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const Logout = () => (dispatch) => {
+  localStorage.removeItem("userInfo");
+  dispatch({ type: USER_SIGN_OUT_REQUEST });
 };
 
-export const userLogin = (userData) => async (dispatch) => {
+export const userLogin = (email, password) => async (dispatch, getState) => {
   try {
     dispatch({
       type: USER_SIGN_IN_REQUEST,
     });
+    const {
+      userSignIn: { userInfo },
+    } = getState();
     const config = {
       headers: {
         "Content-Type": "application/json",
+        // auth : `${userInfo.token}`
       },
     };
 
     const { data } = await axios.post(
       `http://localhost:5000/api/user/signIn`,
-      userData,
+      { email: email, password: password },
       config
     );
-
     dispatch({
       type: USER_SIGN_IN_SUCCESS,
       payload: data,
     });
+
     localStorage.setItem("userInfo", JSON.stringify(data));
   } catch (error) {
     dispatch({
       type: USER_SIGN_IN_FAIL,
       payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+        // error.response && error.response.data.message
+        //   ? error.response.data.message
+           error.message,
     });
   }
 };

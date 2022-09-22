@@ -28,7 +28,6 @@ const View = () => {
   
   return (
     <>
-      
       <div className="container mt-3">
         <h2>Projects</h2>
         <p>Filter</p>
@@ -36,7 +35,7 @@ const View = () => {
           <div className="col-md-6">
             <select
               className="form-control text-center"
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={ (e) => setFilterStatus(e.target.value) }
             >
               <option value="All">All</option>
               <option value="Completed">Completed</option>

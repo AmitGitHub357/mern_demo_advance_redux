@@ -1,7 +1,18 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { Logout } from '../redux/user/userAction'
 
 const Header = () => {
+  const state = useSelector((state) => state.userSignIn);
+  const dispatch = useDispatch()
+  const { userInfo } = state;
+  // console.log(userInfo);
+  const logOutHandler = (e) => {
+    e.preventDefault() 
+    dispatch(Logout())
+  console.log(userInfo);
+  }
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-expand-md navbar-expand-sm navbar-dark bg-dark">
@@ -28,14 +39,23 @@ const Header = () => {
               <a href="/contact" className="nav-item nav-link">
                 Contact
               </a>
-              <a href="/login" className="nav-item nav-link">
-                Login
-              </a>
-              <a href="/sign_up" className="nav-item nav-link">
-                Sign Up
-              </a>
+              {userInfo && userInfo.status === 200 ? (
+                <a className="nav-item nav-link border-0 bg-transparent" onClick={e => logOutHandler(e)}>
+                  Logout
+                </a>
+              ) : (
+               
+               <>
+                  <a href="/login" className="nav-item nav-link">
+                    Login
+                  </a>
+                  <a href="/sign_up" className="nav-item nav-link">
+                    Sign Up
+                  </a>
+                </>
+              )}
             </div>
-           <form className="d-flex ms-auto">
+            <form className="d-flex ms-auto">
               <input
                 type="text"
                 className="form-control me-sm-2"

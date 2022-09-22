@@ -1,9 +1,9 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import CompanyList from "./list";
 import { addProject } from "../redux/project/projectAction";
-import { useDispatch } from "react-redux";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -12,15 +12,25 @@ const Home = () => {
   const [projectStatus, setprojectStatus] = useState("Upcoming");
   const [description, setDescription] = useState("");
   const dispatch = useDispatch();
-
+  const userSignIn = useSelector((state) => state.userSignIn);
+  const { userInfo } = { userSignIn };
+  useEffect(() => {
+    if (!userInfo) {
+      navigate("/login");
+    }
+  }, []);
   const addHandler = async (e) => {
     e.preventDefault();
-    dispatch(addProject({
-      name : name,
-      projectStatus: projectStatus,
-      images: images,
-      description: description,
-    }));
+    dispatch(
+      addProject({
+        name: name,
+        projectStatus: projectStatus,
+        images: images,
+        description: description,
+      })
+    );
+
+    console.log(userSignIn);
     console.log({
       name: name,
       projectStatus: projectStatus,
